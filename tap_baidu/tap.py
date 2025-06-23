@@ -4,10 +4,9 @@ from __future__ import annotations
 
 from singer_sdk import Tap
 from singer_sdk import typing as th  # JSON schema typing helpers
-
-# TODO: Import your custom stream types here:
 from tap_baidu import streams
 
+STREAM_TYPES = [streams.SummaryStream]
 
 class TapBaidu(Tap):
     """Baidu tap class."""
@@ -16,53 +15,19 @@ class TapBaidu(Tap):
 
     # TODO: Update this section with the actual config values you expect:
     config_jsonschema = th.PropertiesList(
-        th.Property(
-            "auth_token",
-            th.StringType(nullable=False),
-            required=True,
-            secret=True,  # Flag config as protected.
-            title="Auth Token",
-            description="The token to authenticate against the API service",
-        ),
-        th.Property(
-            "project_ids",
-            th.ArrayType(th.StringType(nullable=False), nullable=False),
-            required=True,
-            title="Project IDs",
-            description="Project IDs to replicate",
-        ),
-        th.Property(
-            "start_date",
-            th.DateTimeType(nullable=True),
-            description="The earliest record date to sync",
-        ),
-        th.Property(
-            "api_url",
-            th.StringType(nullable=False),
-            title="API URL",
-            default="https://api.mysample.com",
-            description="The url for the API service",
-        ),
-        th.Property(
-            "user_agent",
-            th.StringType(nullable=True),
-            description=(
-                "A custom User-Agent header to send with each request. Default is "
-                "'<tap_name>/<tap_version>'"
-            ),
-        ),
+        th.Property("api_token",th.StringType,required=True),
+        th.Property("start_date",th.DateType),
+        th.Property("end_date",th.DateType),
+        th.Property("timezone",th.StringType)
     ).to_dict()
 
-    def discover_streams(self) -> list[streams.BaiduStream]:
+    def discover_streams(self):
         """Return a list of discovered streams.
 
         Returns:
             A list of discovered streams.
         """
-        return [
-            streams.GroupsStream(self),
-            streams.UsersStream(self),
-        ]
+        return [stream_class(tap=self) for stream_class in STREAM_TYPES]
 
 
 if __name__ == "__main__":

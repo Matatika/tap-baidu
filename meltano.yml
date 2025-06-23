@@ -8,8 +8,8 @@ environments:
 - name: test
 plugins:
   extractors:
-  - name: "tap-baidu"
-    namespace: "tap_baidu"
+  - name: tap-baidu
+    namespace: tap_baidu
     pip_url: -e .
     capabilities:
     - state
@@ -17,34 +17,21 @@ plugins:
     - discover
     - about
     - stream-maps
-
-    # TODO: Declare settings and their types here:
     settings:
-    - name: username
-      label: Username
-      description: The username to use for authentication
-
     - name: api_token
       kind: password
-      label: api_token
-      description: The api token to use for authentication
+      label: Password
+      description: The token to use for authentication
       sensitive: true
-
-    - name: accessToken
-      kind: password
-      label: accessToken
-      description: The access token to use for authentication
-      sensitive: true
-
-    # TODO: Declare required settings here:
-    settings_group_validation:
-    - [username, api_token]
-
-    # TODO: Declare default configuration values here:
-    config:
-      start_date: '2010-01-01T00:00:00Z'
-
+    - name: start_date
+      label: Start Date
+    - name: end_date
+      label: End Date
+    - name: timezone
+      label: Timezone
   loaders:
   - name: target-jsonl
     variant: andyh1203
     pip_url: target-jsonl
+  
+

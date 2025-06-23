@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import decimal
 import typing as t
+import requests
 from functools import cached_property
 from importlib import resources
 
@@ -33,18 +34,31 @@ class BaiduStream(RESTStream):
 
     @property
     def url_base(self) -> str:
-        """Return the API URL root, configurable via tap settings."""
-        # TODO: hardcode a value here, or retrieve it from self.config
-        return "https://api.mysample.com"
+        return "https://api.mediago.io"
 
     @cached_property
-    def authenticator(self) -> Auth:
-        """Return a new authenticator object.
+    def authenticator(self):
+        return BaiduAuthenticator(stream = self)
+    
+    def prepare_request(self, context, next_page_token):
+        request = super().prepare_request(context, next_page_token)
+        if not hasattr(self, "_access_token") or not self._access_token:
+            api_token = self.config.get("api_token")
+            if not api_token:
+                raise ValueError("Missing api_token in config")
 
-        Returns:
-            An authenticator instance.
-        """
-        return BaiduAuthenticator.create_for_stream(self)
+            resp = requests.post(
+                "https://api.mediago.io/data/v1/authentication",
+                headers={"Authorization": f"Basic {api_token}"}
+            )
+            resp.raise_for_status()
+            self._access_token = resp.json()["access_token"]
+            self.logger.info("Fetched new access token")
+
+        request.headers = {
+            "Authorization": f"Bearer {self._access_token}"
+        }
+        return request
 
     @property
     def http_headers(self) -> dict:

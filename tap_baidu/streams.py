@@ -4,10 +4,13 @@ from __future__ import annotations
 
 import typing as t
 from importlib import resources
-
+from typing import Optional, Any
 from singer_sdk import typing as th  # JSON Schema typing helpers
 
 from tap_baidu.client import BaiduStream
+from singer_sdk.streams import RESTStream
+from tap_baidu.auth import BaiduAuthenticator
+
 
 # TODO: Delete this is if not using json files for schema definition
 SCHEMAS_DIR = resources.files(__package__) / "schemas"
@@ -15,52 +18,23 @@ SCHEMAS_DIR = resources.files(__package__) / "schemas"
 #       - Copy-paste as many times as needed to create multiple stream types.
 
 
-class UsersStream(BaiduStream):
-    """Define custom stream."""
+class SummaryStream(BaiduStream):
+    name = "summary"
+    path = "/data/v1/report/summary"
+    primary_keys = ["date"]
+    replication_key = "date"
+    schema_filepath = SCHEMAS_DIR /"summary.json"
+    records_jsonpath = "$.results[*]"
 
-    name = "users"
-    path = "/users"
-    primary_keys: t.ClassVar[list[str]] = ["id"]
-    replication_key = None
-    # Optionally, you may also use `schema_filepath` in place of `schema`:
-    # schema_filepath = SCHEMAS_DIR / "users.json"  # noqa: ERA001
-    schema = th.PropertiesList(
-        th.Property("name", th.StringType),
-        th.Property(
-            "id",
-            th.StringType,
-            description="The user's system ID",
-        ),
-        th.Property(
-            "age",
-            th.IntegerType,
-            description="The user's age in years",
-        ),
-        th.Property(
-            "email",
-            th.StringType,
-            description="The user's email address",
-        ),
-        th.Property("street", th.StringType),
-        th.Property("city", th.StringType),
-        th.Property(
-            "state",
-            th.StringType,
-            description="State name in ISO 3166-2 format",
-        ),
-        th.Property("zip", th.StringType),
-    ).to_dict()
+    def __init__(self, tap, schema=None):
+        super().__init__(tap, schema=schema)
+        self.authenticator = BaiduAuthenticator(self)
 
-
-class GroupsStream(BaiduStream):
-    """Define custom stream."""
-
-    name = "groups"
-    path = "/groups"
-    primary_keys: t.ClassVar[list[str]] = ["id"]
-    replication_key = "modified"
-    schema = th.PropertiesList(
-        th.Property("name", th.StringType),
-        th.Property("id", th.StringType),
-        th.Property("modified", th.DateTimeType),
-    ).to_dict()
+    def get_url_params(self, context: Optional[dict],next_page_token: Optional[Any]) -> dict:
+        params = {
+        "start_date": self.config["start_date"],
+        "end_date": self.config["end_date"],
+        "timezone": self.config.get("timezone"),
+        # add other required params
+        }
+        return params
