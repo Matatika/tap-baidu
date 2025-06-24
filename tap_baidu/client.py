@@ -5,6 +5,8 @@ from __future__ import annotations
 import decimal
 import typing as t
 import requests
+import base64
+
 from functools import cached_property
 from importlib import resources
 
@@ -47,9 +49,12 @@ class BaiduStream(RESTStream):
             if not api_token:
                 raise ValueError("Missing api_token in config")
 
+            token_bytes = api_token.encode("utf-8")
+            base64_token = base64.b64encode(token_bytes).decode("utf-8")
+
             resp = requests.post(
                 "https://api.mediago.io/data/v1/authentication",
-                headers={"Authorization": f"Basic {api_token}"}
+                headers={"Authorization": f"Basic {base64_token}"}
             )
             resp.raise_for_status()
             self._access_token = resp.json()["access_token"]
