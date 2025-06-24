@@ -1,0 +1,163 @@
+{
+    "properties": {
+        "account_id": {
+            "type": "string"
+        },
+        "ad": {
+            "type": "array",
+            "items": {
+                "properties": {
+                    "asset_name": {
+                        "type": "string"
+                    },
+                    "headline": {
+                        "type": "string"
+                    },
+                    "img": {
+                        "type": "string",
+                        "format": "uri"
+                    }
+                }
+            }
+        },
+        "audience": {
+            "type": "object",
+            "properties": {
+                "type": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "brand_name": {
+            "type": "string"
+        },
+        "browser": {
+            "properties": {
+                "type": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "array"
+                }
+            }
+        },
+        "campaign_id": {
+            "type": "string"
+        },
+        "campaign_name": {
+            "type": "string"
+        },
+        "cpc": {
+            "type": "number"
+        },
+        "daily_cap": {
+            "type": "number"
+        },
+        "day_parting": {
+            "type": "array",
+            "items": {
+                "type": "array",
+                "items": {
+                    "type": "integer"
+                }
+            }
+        },
+        "end_time": {
+            "type": "string"
+        },
+        "landing_page": {
+            "type": "string",
+            "format": "uri"
+        },
+        "location": {
+            "type": "object",
+            "properties": {
+                "type": {
+                    "type": "string"
+                },
+                "option": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "os": {
+            "properties": {
+                "type": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "array"
+                }
+            }
+        },
+        "placement": {
+            "properties": {
+                "type": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "platform": {
+            "properties": {
+                "type": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "array"
+                }
+            }
+        },
+        "spend_limit": {
+            "type": "number"
+        },
+        "spend_mode": {
+            "type": "integer"
+        },
+        "start_time": {
+            "type": "string"
+        },
+        "status": {
+            "type": "integer"
+        },
+        "utm_tracking": {
+            "type": "string"
+        },
+        "site_bid_modiefier": {
+            "type": "array",
+            "items": {
+                "properties": {
+                    "site_id": {
+                        "type": "string"
+                    },
+                    "rate": {
+                        "type": "number"
+                    },
+                    "site_name": {
+                        "type": "string"
+                    },
+                    "site_cpc": {
+                        "type": "number"
+                    }
+                }
+            }
+        }
+    }
+}

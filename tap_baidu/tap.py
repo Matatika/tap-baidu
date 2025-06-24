@@ -8,7 +8,8 @@ from tap_baidu import streams
 
 STREAM_TYPES = [
             streams.SummaryStream,
-            streams.CampaignsList
+            streams.CampaignsList,
+            streams.CampaignDetails
             ]
 
 class TapBaidu(Tap):
