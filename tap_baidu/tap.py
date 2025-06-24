@@ -6,7 +6,10 @@ from singer_sdk import Tap
 from singer_sdk import typing as th  # JSON schema typing helpers
 from tap_baidu import streams
 
-STREAM_TYPES = [streams.SummaryStream]
+STREAM_TYPES = [
+            streams.SummaryStream,
+            streams.CampaignsList
+            ]
 
 class TapBaidu(Tap):
     """Baidu tap class."""
@@ -18,15 +21,11 @@ class TapBaidu(Tap):
         th.Property("api_token",th.StringType,required=True),
         th.Property("start_date",th.DateType),
         th.Property("end_date",th.DateType),
-        th.Property("timezone",th.StringType)
+        th.Property("timezone",th.StringType),
+        th.Property("auth_level",th.StringType)
     ).to_dict()
 
     def discover_streams(self):
-        """Return a list of discovered streams.
-
-        Returns:
-            A list of discovered streams.
-        """
         return [stream_class(tap=self) for stream_class in STREAM_TYPES]
 
 

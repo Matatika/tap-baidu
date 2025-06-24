@@ -38,3 +38,17 @@ class SummaryStream(BaiduStream):
         # add other required params
         }
         return params
+
+class CampaignsList(BaiduStream):
+    name = "campaignslist"
+    path = "/manage/v1/campaign"
+    primary_keys = ["campaign_id"]
+    schema_filepath = SCHEMAS_DIR /"campaign_list.json"
+    records_jsonpath = "$[*]"
+
+    def get_url_params(self, context, next_page_token):
+        params = {
+            "auth_level": self.config["auth_level"]
+        }
+        return params
+

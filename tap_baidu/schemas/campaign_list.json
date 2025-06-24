@@ -1,0 +1,23 @@
+{
+    "properties": {
+        "campaign_id": {
+            "type": "string"
+        },
+        "campaign_name": {
+            "type": "string"
+        },
+        "ads": {
+            "type": "array",
+            "items": {
+                "properties": {
+                    "ad_id": {
+                        "type": "string"
+                    },
+                    "ad_name": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}

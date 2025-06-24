@@ -1,6 +1,6 @@
 version: 1
 send_anonymous_usage_stats: true
-project_id: "tap-baidu"
+project_id: tap-baidu
 default_environment: test
 venv:
   backend: uv
@@ -29,9 +29,9 @@ plugins:
       label: End Date
     - name: timezone
       label: Timezone
+    - name: auth_level
+      label: auth level
   loaders:
   - name: target-jsonl
     variant: andyh1203
     pip_url: target-jsonl
-  
-
