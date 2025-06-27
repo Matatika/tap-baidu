@@ -31,6 +31,19 @@ plugins:
       label: Timezone
     - name: auth_level
       label: auth level
+    - name: pageSize
+      label: page size
+    - name: currentPage
+      label: current page
+    - name: campaign_name
+      label: campaign name
+    - name: sort_field
+      label: sort field
+    - name: sort_val
+      label: sort value
+    - name: status
+      label: status
+    
   loaders:
   - name: target-jsonl
     variant: andyh1203

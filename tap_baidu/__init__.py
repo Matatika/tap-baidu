@@ -1,5 +1,6 @@
 """Tap for Baidu."""
 from collections import deque
+
 from typing_extensions import Self, override
 
 
@@ -25,7 +26,7 @@ class BufferDeque(deque):
         self._flush |= len(self) == self.maxlen
         return self
 
-    def __exit__(self, *args) -> None:
+    def __exit__(self, *args) -> None:  # noqa: ANN002
         """Exit the runtime context.
 
         Flushes the buffer if it was full upon entering the context or if `finalize()`

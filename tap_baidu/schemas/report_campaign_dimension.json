@@ -1,0 +1,66 @@
+{
+    "type": "object",
+    "properties": {
+        "date": {
+            "type": "string",
+            "format": "date"
+        },
+        "cv_add_to_cart": {
+            "type": "integer"
+        },
+        "cv_add_to_wishlist": {
+            "type": "integer"
+        },
+        "cv_start_checkout": {
+            "type": "integer"
+        },
+        "cv_other": {
+            "type": "integer"
+        },
+        "cv_add_paymentInfo": {
+            "type": "integer"
+        },
+        "click": {
+            "type": "integer"
+        },
+        "cv_purchase": {
+            "type": "integer"
+        },
+        "spend": {
+            "type": "number"
+        },
+        "cpc": {
+            "type": "number"
+        },
+        "name": {
+            "type": "string"
+        },
+        "impression": {
+            "type": "integer"
+        },
+        "cv_lead": {
+            "type": "integer"
+        },
+        "id": {
+            "type": "string"
+        },
+        "cv_app_install": {
+            "type": "integer"
+        },
+        "cv_complete_registration": {
+            "type": "integer"
+        },
+        "conversion": {
+            "type": "integer"
+        },
+        "status": {
+            "type": "integer"
+        },
+        "cv_view_content": {
+            "type": "integer"
+        },
+        "cv_search": {
+            "type": "integer"
+        }
+    }
+}

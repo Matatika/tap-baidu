@@ -56,6 +56,10 @@ target-version = "py39"
 [tool.ruff.lint]
 ignore = [
     "COM812",  # missing-trailing-comma
+    "ANN201",
+    "ANN01",
+    "D102",
+    "D107",
 ]
 select = ["ALL"]
 

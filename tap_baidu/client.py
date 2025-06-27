@@ -4,12 +4,9 @@ from __future__ import annotations
 
 import decimal
 import typing as t
-import requests
-import base64
-
 from functools import cached_property
-from importlib import resources
 
+import requests
 from singer_sdk.helpers.jsonpath import extract_jsonpath
 from singer_sdk.pagination import BaseAPIPaginator  # noqa: TC002
 from singer_sdk.streams import RESTStream
@@ -18,12 +15,7 @@ from tap_baidu.auth import BaiduAuthenticator
 
 if t.TYPE_CHECKING:
     import requests
-    from singer_sdk.helpers.types import Auth, Context
-
-
-# TODO: Delete this is if not using json files for schema definition
-SCHEMAS_DIR = resources.files(__package__) / "schemas"
-
+    from singer_sdk.helpers.types import Context
 
 class BaiduStream(RESTStream):
     """Baidu stream class."""
@@ -40,30 +32,7 @@ class BaiduStream(RESTStream):
 
     @cached_property
     def authenticator(self):
-        return BaiduAuthenticator(stream = self)
-    
-    def prepare_request(self, context, next_page_token):
-        request = super().prepare_request(context, next_page_token)
-        if not hasattr(self, "_access_token") or not self._access_token:
-            api_token = self.config.get("api_token")
-            if not api_token:
-                raise ValueError("Missing api_token in config")
-
-            token_bytes = api_token.encode("utf-8")
-            base64_token = base64.b64encode(token_bytes).decode("utf-8")
-
-            resp = requests.post(
-                "https://api.mediago.io/data/v1/authentication",
-                headers={"Authorization": f"Basic {base64_token}"}
-            )
-            resp.raise_for_status()
-            self._access_token = resp.json()["access_token"]
-            self.logger.info("Fetched new access token")
-
-        request.headers = {
-            "Authorization": f"Bearer {self._access_token}"
-        }
-        return request
+        return BaiduAuthenticator(stream=self, api_token=self.config["api_token"])
 
     @property
     def http_headers(self) -> dict:
@@ -111,25 +80,6 @@ class BaiduStream(RESTStream):
             params["order_by"] = self.replication_key
         return params
 
-    def prepare_request_payload(
-        self,
-        context: Context | None,  # noqa: ARG002
-        next_page_token: t.Any | None,  # noqa: ARG002, ANN401
-    ) -> dict | None:
-        """Prepare the data payload for the REST API request.
-
-        By default, no payload will be sent (return None).
-
-        Args:
-            context: The stream context.
-            next_page_token: The next page index or value.
-
-        Returns:
-            A dictionary with the JSON body for a POST requests.
-        """
-        # TODO: Delete this method if no payload is required. (Most REST APIs.)
-        return None
-
     def parse_response(self, response: requests.Response) -> t.Iterable[dict]:
         """Parse the response and return an iterator of result records.
 
@@ -139,25 +89,8 @@ class BaiduStream(RESTStream):
         Yields:
             Each record from the source.
         """
-        # TODO: Parse response body and return a set of records.
         yield from extract_jsonpath(
             self.records_jsonpath,
             input=response.json(parse_float=decimal.Decimal),
         )
 
-    def post_process(
-        self,
-        row: dict,
-        context: Context | None = None,  # noqa: ARG002
-    ) -> dict | None:
-        """As needed, append or transform raw data to match expected structure.
-
-        Args:
-            row: An individual record from the stream.
-            context: The stream context.
-
-        Returns:
-            The updated record dictionary, or ``None`` to skip the record.
-        """
-        # TODO: Delete this method if not needed.
-        return row
