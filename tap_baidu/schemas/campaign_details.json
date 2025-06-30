@@ -38,6 +38,7 @@
             "type": "string"
         },
         "browser": {
+            "type": "object",
             "properties": {
                 "type": {
                     "type": "string"
@@ -93,6 +94,7 @@
             }
         },
         "os": {
+            "type": "object",
             "properties": {
                 "type": {
                     "type": "string"
@@ -103,6 +105,7 @@
             }
         },
         "placement": {
+            "type": "object",
             "properties": {
                 "type": {
                     "type": "string"
@@ -116,6 +119,7 @@
             }
         },
         "platform": {
+            "type": "object",
             "properties": {
                 "type": {
                     "type": "string"

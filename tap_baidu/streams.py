@@ -30,7 +30,7 @@ class SummaryStream(BaiduStream):
 
 class CampaignsList(BaiduStream):
     """Class to get list of authorized campaigns."""
-    name = "campaignslist"
+    name = "campaigns"
     path = "/manage/v1/campaign"
     primary_keys = ["campaign_id"]  # noqa: RUF012
     schema_filepath = SCHEMAS_DIR /"campaign_list.json"
@@ -65,11 +65,12 @@ class CampaignsList(BaiduStream):
 class CampaignDetails(BaiduStream):
     """Class to get details about campaigns."""
     parent_stream_type = CampaignsList
-    name = "campaigndetails"
+    name = "campaign_details"
     path = "/manage/v1/campaign/detail"
-    primary_key = ["campaign_id"]  # noqa: RUF012
+    primary_keys = ["campaign_id"]  # noqa: RUF012
     schema_filepath = SCHEMAS_DIR /"campaign_details.json"
     records_jsonpath = "$[*]"
+    state_partitioning_keys = () # we don't want to store any state bookmarks for the child stream
     def get_url_params(self, context, next_page_token):  # noqa: ANN001
         params = super().get_url_params(context, next_page_token)
         params["campaign_ids"] = ",".join(context["campaign_ids"])
@@ -80,9 +81,11 @@ class ReportInCampaignDimension(BaiduStream):
     parent_stream_type = CampaignsList
     name = "daily_report_in_campaign_dimension"
     path = "/data/v1/report/day/list"
-    primary_key = ["id","date"]
+    primary_keys = ["id","date"]
+    replication_key = "date"
     schema_filepath = SCHEMAS_DIR /"report_campaign_dimension.json"
     records_jsonpath = "$.results[*]"
+    state_partitioning_keys = () # we don't want to store any state bookmarks for the child stream
     def get_url_params(self, context, next_page_token):  # noqa: ANN001
         
         params = super().get_url_params(context, next_page_token)
