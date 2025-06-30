@@ -6,6 +6,7 @@ from importlib import resources
 from typing import Any
 
 from typing_extensions import override
+from datetime import date
 
 from tap_baidu import BufferDeque
 from tap_baidu.client import BaiduStream
@@ -24,7 +25,7 @@ class SummaryStream(BaiduStream):
     def get_url_params(self, context: dict | None,next_page_token: Any | None) -> dict:  # noqa: ANN401, ARG002
         return {
         "start_date": self.get_starting_replication_key_value(context),
-        "end_date": self.config["end_date"],
+        "end_date": self.config.get("end_date", date.today().strftime('%Y-%m-%d')),
         "timezone": self.config.get("timezone"),
         }
 
@@ -90,8 +91,8 @@ class ReportInCampaignDimension(BaiduStream):
         
         params = super().get_url_params(context, next_page_token)
 
-        params["start_date"] = self.config["start_date"]
-        params["end_date"] = self.config["end_date"]
+        params["start_date"] =  self.get_starting_replication_key_value(context)
+        params["end_date"] = self.config.get("end_date", date.today().strftime('%Y-%m-%d'))
         params["timezone"] = self.config["timezone"]
         params["campaign_ids"] = ",".join(context["campaign_ids"])
         if self.config.get("pageSize"):
