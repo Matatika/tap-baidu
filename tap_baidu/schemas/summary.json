@@ -44,6 +44,9 @@
         "cv_start_checkout": {
             "type": "integer"
         },
+        "cv_add_paymentInfo":{
+            "type":"integer"
+        },
         "cv_purchase": {
             "type": "integer"
         },

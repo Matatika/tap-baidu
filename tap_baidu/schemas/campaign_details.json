@@ -54,6 +54,9 @@
         "campaign_name": {
             "type": "string"
         },
+        "charge_type":{
+            "type": "string"
+        },
         "cpc": {
             "type": "number"
         },
@@ -69,12 +72,24 @@
                 }
             }
         },
+        "dp_timezone":{
+            "type":"string"
+        },
         "end_time": {
             "type": "string"
+        },
+        "gross_cpc":{
+            "type":"string"
+        },
+        "ip_targeting":{
+            "type":"string"
         },
         "landing_page": {
             "type": "string",
             "format": "uri"
+        },
+        "language":{
+            "type":"string"
         },
         "location": {
             "type": "array",
@@ -92,6 +107,12 @@
                     }
                 }
             }
+        },
+        "objective":{
+            "type":"string"
+        },
+        "optimization_type":{
+            "type":"string"
         },
         "os": {
             "type": "array",
@@ -129,11 +150,17 @@
                 }
             }
         },
+        "product_type":{
+            "type":"string"
+        },
         "spend_limit": {
             "type": "number"
         },
         "spend_mode": {
             "type": "integer"
+        },
+        "spend_renew":{
+            "type": "string"
         },
         "start_time": {
             "type": "string"
@@ -141,8 +168,14 @@
         "status": {
             "type": "integer"
         },
+        "target_cpa": {
+            "type":"integer"
+        },
         "utm_tracking": {
             "type": "string"
+        },
+        "zipcode_country": {
+            "type":"string"
         },
         "site_bid_modiefier": {
             "type": "array",
