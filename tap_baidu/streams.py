@@ -10,6 +10,8 @@ from datetime import date
 
 from tap_baidu import BufferDeque
 from tap_baidu.client import BaiduStream
+from singer_sdk.exceptions import ConfigValidationError
+
 
 SCHEMAS_DIR = resources.files(__package__) / "schemas"
 
@@ -22,6 +24,14 @@ class SummaryStream(BaiduStream):
     schema_filepath = SCHEMAS_DIR /"summary.json"
     records_jsonpath = "$.results[*]"
 
+    def __init__(self, tap, stream_config=None):
+        super().__init__(tap, stream_config)
+        # validate required config
+        if not self.config.get("start_date"):
+            raise ConfigValidationError("Missing required config parameter: 'start_date'")
+        if not self.config.get("timezone"):
+            raise ConfigValidationError("Missing required config parameter: 'timezone'")
+        
     def get_url_params(self, context: dict | None,next_page_token: Any | None) -> dict:  # noqa: ANN401, ARG002
         return {
         "start_date": self.get_starting_replication_key_value(context),
@@ -45,6 +55,8 @@ class CampaignsList(BaiduStream):
     def __init__(self, *args, **kwargs) -> None:  # noqa: ANN002, ANN003
         super().__init__(*args, **kwargs)
         self.campaign_ids_buffer = BufferDeque(maxlen=150)
+        if not self.config.get("auth_level"):
+            raise ConfigValidationError("Missing required config parameter: 'auth_level'")
 
     @override
     def parse_response(self, response):  # noqa: ANN001
@@ -87,6 +99,15 @@ class ReportInCampaignDimension(BaiduStream):
     schema_filepath = SCHEMAS_DIR /"report_campaign_dimension.json"
     records_jsonpath = "$.results[*]"
     state_partitioning_keys = () # we don't want to store any state bookmarks for the child stream
+
+    def __init__(self, tap, stream_config=None):
+        super().__init__(tap, stream_config)
+        # validate required config
+        if not self.config.get("start_date"):
+            raise ConfigValidationError("Missing required config parameter: 'start_date'")
+        if not self.config.get("timezone"):
+            raise ConfigValidationError("Missing required config parameter: 'timezone'")
+
     def get_url_params(self, context, next_page_token):  # noqa: ANN001
         
         params = super().get_url_params(context, next_page_token)
