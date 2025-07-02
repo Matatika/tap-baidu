@@ -6,7 +6,6 @@ from importlib import resources
 from typing import Any
 
 from typing_extensions import override
-from datetime import date
 
 from tap_baidu import BufferDeque
 from tap_baidu.client import BaiduStream
