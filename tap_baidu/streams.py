@@ -10,6 +10,7 @@ from datetime import date
 
 from tap_baidu import BufferDeque
 from tap_baidu.client import BaiduStream
+from tap_baidu.pagination import BaiduReportPaginator
 from singer_sdk.exceptions import ConfigValidationError
 
 
@@ -94,14 +95,17 @@ class ReportInCampaignDimension(BaiduStream):
     schema_filepath = SCHEMAS_DIR /"report_campaign_dimension.json"
     records_jsonpath = "$.results[*]"
 
+    def get_new_paginator(self):
+        return BaiduReportPaginator(1)
+
     def get_url_params(self, context, next_page_token):  # noqa: ANN001
         
         params = super().get_url_params(context, next_page_token)
 
         params["start_date"] =  self.get_starting_replication_key_value(context)
-        params["end_date"] = self.config.get("end_date", date.today().isoformat())
-        params["timezone"] = self.config.get("timezone",'utc0')
+        params["end_date"] = self.config["end_date"]
+        params["timezone"] = self.config["timezone"]
         params["page_size"] = 500
-        params["current_page"] = next_page_token or 1
+        params["current_page"] = next_page_token
         params["sort_val"] = "asc"
         return params

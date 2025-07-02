@@ -8,11 +8,9 @@ from functools import cached_property
 
 import requests
 from singer_sdk.helpers.jsonpath import extract_jsonpath
-from singer_sdk.pagination import BaseAPIPaginator  # noqa: TC002
 from singer_sdk.streams import RESTStream
 
 from tap_baidu.auth import BaiduAuthenticator
-from tap_baidu.pagination import BaiduPaginator
 
 if t.TYPE_CHECKING:
     import requests
@@ -44,8 +42,6 @@ class BaiduStream(RESTStream):
         """
         return {}
 
-    def get_new_paginator(self) -> BaseAPIPaginator:
-        return BaiduPaginator()
 
     def get_url_params(
         self,

@@ -22,9 +22,9 @@ class TapBaidu(Tap):
 
     config_jsonschema = th.PropertiesList(
         th.Property("api_token",th.StringType,required=True, description = "API token used for authentication"),
-        th.Property("start_date",th.DateType, value = (date.today() - timedelta(days=365)).isoformat(), description = "Start date required for the report streams - summary and report in campaign dimension."),
-        th.Property("end_date",th.DateType, value = date.today().isoformat(), description = "End date required for the report streams - summary and report in campaign dimension."),
-        th.Property("timezone",th.StringType,allowed_values= ['utc0','utc8', 'est'] ,value = 'utc0', description = "Time zone of the report streams - summary and report in campaign dimension.")
+        th.Property("start_date",th.DateType, default = (date.today() - timedelta(days=365)).isoformat(), description = "Start date required for the report streams - summary and report in campaign dimension."),
+        th.Property("end_date",th.DateType, default = date.today().isoformat(), description = "End date required for the report streams - summary and report in campaign dimension."),
+        th.Property("timezone",th.StringType,allowed_values= ['utc0','utc8', 'est'] ,default = 'utc0', description = "Time zone of the report streams - summary and report in campaign dimension.")
     ).to_dict()
 
     def discover_streams(self):
