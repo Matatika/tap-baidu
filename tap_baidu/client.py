@@ -12,6 +12,7 @@ from singer_sdk.pagination import BaseAPIPaginator  # noqa: TC002
 from singer_sdk.streams import RESTStream
 
 from tap_baidu.auth import BaiduAuthenticator
+from tap_baidu.pagination import BaiduPaginator
 
 if t.TYPE_CHECKING:
     import requests
@@ -44,19 +45,7 @@ class BaiduStream(RESTStream):
         return {}
 
     def get_new_paginator(self) -> BaseAPIPaginator:
-        """Create a new pagination helper instance.
-
-        If the source API can make use of the `next_page_token_jsonpath`
-        attribute, or it contains a `X-Next-Page` header in the response
-        then you can remove this method.
-
-        If you need custom pagination that uses page numbers, "next" links, or
-        other approaches, please read the guide: https://sdk.meltano.com/en/v0.25.0/guides/pagination-classes.html.
-
-        Returns:
-            A pagination helper instance.
-        """
-        return super().get_new_paginator()
+        return BaiduPaginator()
 
     def get_url_params(
         self,
