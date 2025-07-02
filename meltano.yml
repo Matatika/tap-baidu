@@ -28,7 +28,7 @@ plugins:
     - name: end_date
       label: End Date
     - name: timezone
-      label: Timezone   
+      label: Timezone 
   loaders:
   - name: target-jsonl
     variant: andyh1203
