@@ -35,7 +35,7 @@
         "cv_add_to_cart": {
             "type": "integer"
         },
-        "cv_add_paymentinfo": {
+        "cv_add_paymentInfo": {
             "type": "integer"
         },
         "cv_search": {

@@ -24,6 +24,7 @@ class SummaryStream(BaiduStream):
     replication_key = "date"
     schema_filepath = SCHEMAS_DIR /"summary.json"
     records_jsonpath = "$.results[*]"
+    is_sorted = True
 
     def __init__(self, tap, stream_config=None):
         super().__init__(tap, stream_config)
@@ -94,6 +95,7 @@ class ReportInCampaignDimension(BaiduStream):
     replication_key = "date"
     schema_filepath = SCHEMAS_DIR /"report_campaign_dimension.json"
     records_jsonpath = "$.results[*]"
+    is_sorted = True
 
     def get_new_paginator(self):
         return BaiduReportPaginator(1)
@@ -107,5 +109,7 @@ class ReportInCampaignDimension(BaiduStream):
         params["timezone"] = self.config["timezone"]
         params["page_size"] = 500
         params["current_page"] = next_page_token
+        params["sort_field"] = "date"
         params["sort_val"] = "asc"
+        self.logger.warning( params["current_page"])
         return params
