@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from datetime import date
 from importlib import resources
-from typing import Any
 
 from typing_extensions import override
 
@@ -14,36 +13,39 @@ from tap_baidu.pagination import BaiduReportPaginator
 
 SCHEMAS_DIR = resources.files(__package__) / "schemas"
 
+
 class SummaryStream(BaiduStream):
     """Class to get summary of reports."""
+
     name = "summary"
     path = "/data/v1/report/summary"
     primary_keys = ("date",)
     replication_key = "date"
-    schema_filepath = SCHEMAS_DIR /"summary.json"
+    schema_filepath = SCHEMAS_DIR / "summary.json"
     records_jsonpath = "$.results[*]"
     is_sorted = True
-        
+
     @override
     def get_url_params(self, context, next_page_token):
         return {
-        "start_date": self.get_starting_replication_key_value(context),
-        "end_date": self.config.get("end_date", date.today().isoformat()),
-        "timezone": self.config.get("timezone",'utc0')
+            "start_date": self.get_starting_replication_key_value(context),
+            "end_date": self.config.get("end_date", date.today().isoformat()),
+            "timezone": self.config.get("timezone", "utc0"),
         }
+
 
 class CampaignsList(BaiduStream):
     """Class to get list of authorized campaigns."""
+
     name = "campaigns"
     path = "/manage/v1/campaign"
     primary_keys = ("campaign_id",)
-    schema_filepath = SCHEMAS_DIR /"campaign_list.json"
+    schema_filepath = SCHEMAS_DIR / "campaign_list.json"
 
     @override
     def get_url_params(self, context, next_page_token):
-        return {
-            "auth_level": 'r'
-        }
+        return {"auth_level": "r"}
+
     @override
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -66,14 +68,16 @@ class CampaignsList(BaiduStream):
             if buf.flush:
                 yield {"campaign_ids": buf}
 
+
 class CampaignDetails(BaiduStream):
     """Class to get details about campaigns."""
+
     parent_stream_type = CampaignsList
     name = "campaign_details"
     path = "/manage/v1/campaign/detail"
     primary_keys = ("campaign_id",)
-    schema_filepath = SCHEMAS_DIR /"campaign_details.json"
-    state_partitioning_keys = () # we don't want to store any state bookmarks for the child stream
+    schema_filepath = SCHEMAS_DIR / "campaign_details.json"
+    state_partitioning_keys = ()  # we don't want to store any state bookmarks for the child stream
 
     @override
     def get_url_params(self, context, next_page_token):
@@ -81,13 +85,15 @@ class CampaignDetails(BaiduStream):
         params["campaign_ids"] = ",".join(context["campaign_ids"])
         return params
 
+
 class ReportInCampaignDimension(BaiduStream):
     """Class to get report in campaign dimension."""
+
     name = "daily_report_in_campaign_dimension"
     path = "/data/v1/report/day/list"
     primary_keys = ("id", "date")
     replication_key = "date"
-    schema_filepath = SCHEMAS_DIR /"report_campaign_dimension.json"
+    schema_filepath = SCHEMAS_DIR / "report_campaign_dimension.json"
     records_jsonpath = "$.results[*]"
     is_sorted = True
 
@@ -97,15 +103,14 @@ class ReportInCampaignDimension(BaiduStream):
 
     @override
     def get_url_params(self, context, next_page_token):
-        
         params = super().get_url_params(context, next_page_token)
 
-        params["start_date"] =  self.get_starting_replication_key_value(context)
+        params["start_date"] = self.get_starting_replication_key_value(context)
         params["end_date"] = self.config["end_date"]
         params["timezone"] = self.config["timezone"]
         params["page_size"] = 500
         params["current_page"] = next_page_token
         params["sort_field"] = "date"
         params["sort_val"] = "asc"
-        self.logger.warning( params["current_page"])
+        self.logger.warning(params["current_page"])
         return params
