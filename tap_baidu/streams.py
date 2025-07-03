@@ -2,17 +2,15 @@
 
 from __future__ import annotations
 
+from datetime import date
 from importlib import resources
 from typing import Any
 
 from typing_extensions import override
-from datetime import date
 
 from tap_baidu import BufferDeque
 from tap_baidu.client import BaiduStream
 from tap_baidu.pagination import BaiduReportPaginator
-from singer_sdk.exceptions import ConfigValidationError
-
 
 SCHEMAS_DIR = resources.files(__package__) / "schemas"
 
@@ -25,12 +23,6 @@ class SummaryStream(BaiduStream):
     schema_filepath = SCHEMAS_DIR /"summary.json"
     records_jsonpath = "$.results[*]"
     is_sorted = True
-
-    def __init__(self, tap, stream_config=None):
-        super().__init__(tap, stream_config)
-        # validate required config
-        if not self.config.get("start_date"):
-            raise ConfigValidationError("Missing required config parameter: 'start_date'")
         
     def get_url_params(self, context: dict | None,next_page_token: Any | None) -> dict:  # noqa: ANN401, ARG002
         return {
