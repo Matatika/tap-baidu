@@ -24,7 +24,8 @@ class SummaryStream(BaiduStream):
     records_jsonpath = "$.results[*]"
     is_sorted = True
         
-    def get_url_params(self, context: dict | None,next_page_token: Any | None) -> dict:  # noqa: ANN401, ARG002
+    @override
+    def get_url_params(self, context, next_page_token):
         return {
         "start_date": self.get_starting_replication_key_value(context),
         "end_date": self.config.get("end_date", date.today().isoformat()),
@@ -38,7 +39,8 @@ class CampaignsList(BaiduStream):
     primary_keys = ("campaign_id",)
     schema_filepath = SCHEMAS_DIR /"campaign_list.json"
 
-    def get_url_params(self, context: dict | None,next_page_token: Any | None): # noqa: ANN401, ARG002
+    @override
+    def get_url_params(self, context, next_page_token):
         return {
             "auth_level": 'r'
         }
@@ -72,6 +74,8 @@ class CampaignDetails(BaiduStream):
     primary_keys = ("campaign_id",)
     schema_filepath = SCHEMAS_DIR /"campaign_details.json"
     state_partitioning_keys = () # we don't want to store any state bookmarks for the child stream
+
+    @override
     def get_url_params(self, context, next_page_token):
         params = super().get_url_params(context, next_page_token)
         params["campaign_ids"] = ",".join(context["campaign_ids"])
@@ -87,9 +91,11 @@ class ReportInCampaignDimension(BaiduStream):
     records_jsonpath = "$.results[*]"
     is_sorted = True
 
+    @override
     def get_new_paginator(self):
         return BaiduReportPaginator(1)
 
+    @override
     def get_url_params(self, context, next_page_token):
         
         params = super().get_url_params(context, next_page_token)
