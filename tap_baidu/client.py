@@ -19,9 +19,6 @@ if t.TYPE_CHECKING:
 class BaiduStream(RESTStream):
     """Baidu stream class."""
 
-    # Update this value if necessary or override `parse_response`.
-    records_jsonpath = "$[*]"
-
     # Update this value if necessary or override `get_new_paginator`.
     next_page_token_jsonpath = "$.next_page"  # noqa: S105
 

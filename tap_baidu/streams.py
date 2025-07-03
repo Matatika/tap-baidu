@@ -45,7 +45,6 @@ class CampaignsList(BaiduStream):
     path = "/manage/v1/campaign"
     primary_keys = ["campaign_id"]  # noqa: RUF012
     schema_filepath = SCHEMAS_DIR /"campaign_list.json"
-    records_jsonpath = "$[*]"
 
     def get_url_params(self, context: dict | None,next_page_token: Any | None): # noqa: ANN401, ARG002
         return {
@@ -80,7 +79,6 @@ class CampaignDetails(BaiduStream):
     path = "/manage/v1/campaign/detail"
     primary_keys = ["campaign_id"]  # noqa: RUF012
     schema_filepath = SCHEMAS_DIR /"campaign_details.json"
-    records_jsonpath = "$[*]"
     state_partitioning_keys = () # we don't want to store any state bookmarks for the child stream
     def get_url_params(self, context, next_page_token):  # noqa: ANN001
         params = super().get_url_params(context, next_page_token)
