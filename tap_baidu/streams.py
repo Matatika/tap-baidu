@@ -111,5 +111,4 @@ class ReportInCampaignDimension(BaiduStream):
         params["current_page"] = next_page_token
         params["sort_field"] = "date"
         params["sort_val"] = "asc"
-        self.logger.warning(params["current_page"])
         return params
