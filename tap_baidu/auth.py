@@ -9,7 +9,7 @@ from singer_sdk.authenticators import OAuthAuthenticator, SingletonMeta
 from typing_extensions import override
 
 if TYPE_CHECKING:
-    from singer_sdk.streams import Stream
+    from tap_baidu.streams import BaiduStream
 
 
 # The SingletonMeta metaclass makes your streams reuse the same authenticator instance.
@@ -18,7 +18,7 @@ class BaiduAuthenticator(OAuthAuthenticator, metaclass=SingletonMeta):
     """Authenticator class for Baidu."""
 
     @override
-    def __init__(self, stream: Stream, api_token: str) -> None:
+    def __init__(self, stream: BaiduStream, api_token: str) -> None:
         token_bytes = api_token.encode("utf-8")
         base64_token = base64.b64encode(token_bytes).decode("utf-8")
         headers = {"Authorization": f"Basic {base64_token}"}
