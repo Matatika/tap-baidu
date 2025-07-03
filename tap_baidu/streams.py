@@ -33,7 +33,7 @@ class SummaryStream(BaiduStream):
         }
 
 
-class CampaignsList(BaiduStream):
+class CampaignStream(BaiduStream):
     """Class to get list of authorized campaigns."""
 
     name = "campaigns"
@@ -71,7 +71,7 @@ class CampaignsList(BaiduStream):
 class CampaignDetails(BaiduStream):
     """Class to get details about campaigns."""
 
-    parent_stream_type = CampaignsList
+    parent_stream_type = CampaignStream
     name = "campaign_details"
     path = "/manage/v1/campaign/detail"
     primary_keys = ("campaign_id",)

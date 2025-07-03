@@ -10,7 +10,7 @@ from tap_baidu import streams
 
 STREAM_TYPES = [
             streams.SummaryStream,
-            streams.CampaignsList,
+            streams.CampaignStream,
             streams.CampaignDetails,
             streams.ReportInCampaignDimension
             ]
