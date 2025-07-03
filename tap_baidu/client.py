@@ -19,9 +19,7 @@ if t.TYPE_CHECKING:
 class BaiduStream(RESTStream):
     """Baidu stream class."""
 
-    @property
-    def url_base(self) -> str:
-        return "https://api.mediago.io"
+    url_base = "https://api.mediago.io"
 
     @cached_property
     def authenticator(self):
