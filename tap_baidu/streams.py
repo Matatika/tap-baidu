@@ -43,12 +43,12 @@ class CampaignsList(BaiduStream):
             "auth_level": 'r'
         }
     @override
-    def __init__(self, *args, **kwargs) -> None:  # noqa: ANN002, ANN003
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.campaign_ids_buffer = BufferDeque(maxlen=150)
 
     @override
-    def parse_response(self, response):  # noqa: ANN001
+    def parse_response(self, response):
         for record in super().parse_response(response):
             yield record
 
@@ -57,7 +57,7 @@ class CampaignsList(BaiduStream):
         yield record  # yield last record again to force child context generation
 
     @override
-    def generate_child_contexts(self, record, context):  # noqa: ANN001
+    def generate_child_contexts(self, record, context):
         self.campaign_ids_buffer.append(record["campaign_id"])
 
         with self.campaign_ids_buffer as buf:
@@ -72,7 +72,7 @@ class CampaignDetails(BaiduStream):
     primary_keys = ("campaign_id",)
     schema_filepath = SCHEMAS_DIR /"campaign_details.json"
     state_partitioning_keys = () # we don't want to store any state bookmarks for the child stream
-    def get_url_params(self, context, next_page_token):  # noqa: ANN001
+    def get_url_params(self, context, next_page_token):
         params = super().get_url_params(context, next_page_token)
         params["campaign_ids"] = ",".join(context["campaign_ids"])
         return params
@@ -90,7 +90,7 @@ class ReportInCampaignDimension(BaiduStream):
     def get_new_paginator(self):
         return BaiduReportPaginator(1)
 
-    def get_url_params(self, context, next_page_token):  # noqa: ANN001
+    def get_url_params(self, context, next_page_token):
         
         params = super().get_url_params(context, next_page_token)
 
