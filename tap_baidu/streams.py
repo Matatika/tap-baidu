@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from datetime import date
 from importlib import resources
 
 from typing_extensions import override
@@ -29,8 +28,8 @@ class SummaryStream(BaiduStream):
     def get_url_params(self, context, next_page_token):
         return {
             "start_date": self.get_starting_replication_key_value(context),
-            "end_date": self.config.get("end_date", date.today().isoformat()),
-            "timezone": self.config.get("timezone", "utc0"),
+            "end_date": self.config["end_date"],
+            "timezone": self.config["timezone"],
         }
 
 
