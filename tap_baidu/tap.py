@@ -11,11 +11,12 @@ from typing_extensions import override
 from tap_baidu import streams
 
 STREAM_TYPES = [
-            streams.SummaryStream,
-            streams.CampaignStream,
-            streams.CampaignDetails,
-            streams.ReportInCampaignDimension
-            ]
+    streams.SummaryStream,
+    streams.CampaignStream,
+    streams.CampaignDetails,
+    streams.ReportInCampaignDimension,
+]
+
 
 class TapBaidu(Tap):
     """Baidu tap class."""
@@ -27,7 +28,7 @@ class TapBaidu(Tap):
             "api_token",
             th.StringType,
             required=True,
-            description="API token used for authentication"
+            description="API token used for authentication",
         ),
         th.Property(
             "start_date",
@@ -45,8 +46,8 @@ class TapBaidu(Tap):
             th.DateType,
             default=datetime.now(tz=timezone.utc).date().isoformat(),
             description=(
-                    "End date required for the report streams - summary and "
-                    "report in campaign dimension."
+                "End date required for the report streams - summary and "
+                "report in campaign dimension."
             ),
         ),
         th.Property(
@@ -58,7 +59,7 @@ class TapBaidu(Tap):
                 "Time zone of the report streams - summary and "
                 "report in campaign dimension."
             ),
-        )
+        ),
     ).to_dict()
 
     @override
