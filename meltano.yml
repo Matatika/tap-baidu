@@ -20,7 +20,7 @@ plugins:
     settings:
     - name: api_token
       kind: password
-      label: Password
+      label: API Token
       description: The token to use for authentication
       sensitive: true
     - name: start_date
