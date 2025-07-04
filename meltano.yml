@@ -20,7 +20,7 @@ plugins:
     settings:
     - name: api_token
       kind: password
-      label: Password
+      label: API Token
       description: The token to use for authentication
       sensitive: true
     - name: start_date
@@ -28,7 +28,7 @@ plugins:
     - name: end_date
       label: End Date
     - name: timezone
-      label: Timezone 
+      label: Timezone
   loaders:
   - name: target-jsonl
     variant: andyh1203
