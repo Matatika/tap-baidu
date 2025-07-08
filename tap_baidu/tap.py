@@ -15,6 +15,8 @@ STREAM_TYPES = [
     streams.CampaignStream,
     streams.CampaignDetails,
     streams.ReportInCampaignDimension,
+    streams.ReportInSiteDimension,
+    streams.AccountsStream,
 ]
 
 
@@ -28,7 +30,7 @@ class TapBaidu(Tap):
             "api_token",
             th.StringType,
             required=True,
-            description="API token used for authentication",
+            description="API token used for authentication.",
         ),
         th.Property(
             "start_date",
@@ -59,6 +61,11 @@ class TapBaidu(Tap):
                 "Time zone of the report streams - summary and "
                 "report in campaign dimension."
             ),
+        ),
+        th.Property(
+            "campaign_id",
+            th.StringType,
+            description=("campaign id of report to be generated."),
         ),
     ).to_dict()
 

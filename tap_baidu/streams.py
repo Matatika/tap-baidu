@@ -17,20 +17,12 @@ class SummaryStream(BaiduStream):
     """Class to get summary of reports."""
 
     name = "summary"
-    path = "/data/v1/report/summary"
+    path = "/summary"
     primary_keys = ("date",)
     replication_key = "date"
     schema_filepath = SCHEMAS_DIR / "summary.json"
     records_jsonpath = "$.results[*]"
     is_sorted = True
-
-    @override
-    def get_url_params(self, context, next_page_token):
-        return {
-            "start_date": self.get_starting_replication_key_value(context),
-            "end_date": self.config["end_date"],
-            "timezone": self.config["timezone"],
-        }
 
 
 class CampaignStream(BaiduStream):
@@ -68,6 +60,19 @@ class CampaignStream(BaiduStream):
                 yield {"campaign_ids": buf}
 
 
+class AccountsStream(BaiduStream):
+    """Class to get list of authorized accounts."""
+
+    name = "authorized_accounts"
+    path = "/manage/v1/account"
+    primary_keys = "account_id"
+    schema_filepath = SCHEMAS_DIR / "authorized_account_list.json"
+
+    @override
+    def get_url_params(self, context, next_page_token):
+        return {"auth_level": "r"}
+
+
 class CampaignDetails(BaiduStream):
     """Class to get details about campaigns."""
 
@@ -91,7 +96,7 @@ class ReportInCampaignDimension(BaiduStream):
     """Class to get report in campaign dimension."""
 
     name = "daily_report_in_campaign_dimension"
-    path = "/data/v1/report/day/list"
+    path = "/day/list"
     primary_keys = ("id", "date")
     replication_key = "date"
     schema_filepath = SCHEMAS_DIR / "report_campaign_dimension.json"
@@ -100,17 +105,36 @@ class ReportInCampaignDimension(BaiduStream):
 
     @override
     def get_new_paginator(self):
-        return BaiduReportPaginator(1)
+        return BaiduReportPaginator(1, stream=self)
 
     @override
     def get_url_params(self, context, next_page_token):
         params = super().get_url_params(context, next_page_token)
-
-        params["start_date"] = self.get_starting_replication_key_value(context)
-        params["end_date"] = self.config["end_date"]
-        params["timezone"] = self.config["timezone"]
         params["page_size"] = 500
         params["current_page"] = next_page_token
         params["sort_field"] = "date"
         params["sort_val"] = "asc"
+        return params
+
+
+class ReportInSiteDimension(BaiduStream):
+    """Class to get report in site dimension."""
+
+    name = "daily_report_in_site_dimension"
+    path = "/site/day/list"
+    primary_keys = ("campaign_id", "date")
+    replication_key = "date"
+    schema_filepath = SCHEMAS_DIR / "report_in_site_dimension.json"
+    records_jsonpath = "$.result[*]"
+
+    @override
+    def get_new_paginator(self):
+        return BaiduReportPaginator(1, stream=self)
+
+    @override
+    def get_url_params(self, context, next_page_token):
+        params = super().get_url_params(context, next_page_token)
+        params["campaign_id"] = self.config["campaign_id"]
+        params["page_size"] = 500
+        params["current_page"] = next_page_token
         return params

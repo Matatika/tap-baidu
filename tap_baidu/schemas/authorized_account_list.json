@@ -1,0 +1,30 @@
+{
+    "properties": {
+        "account_id": {
+            "type": "string"
+        },
+        "account_name": {
+            "type": "string"
+        },
+        "pixels": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "conversion_name": {
+                        "type": "string"
+                    },
+                    "category": {
+                        "type": "string"
+                    },
+                    "include_in_total_conversion": {
+                        "type": "integer"
+                    },
+                    "status": {
+                        "type": "integer"
+                    }
+                }
+            }
+        }
+    }
+}
