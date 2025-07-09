@@ -60,11 +60,6 @@ class TapBaidu(Tap):
                 "report in campaign dimension."
             ),
         ),
-        th.Property(
-            "campaign_id",
-            th.StringType,
-            description=("campaign id of report to be generated."),
-        ),
     ).to_dict()
 
     @override

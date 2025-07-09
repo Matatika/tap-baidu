@@ -7,13 +7,13 @@ from importlib import resources
 from typing_extensions import override
 
 from tap_baidu import BufferDeque
-from tap_baidu.client import BaiduStream
+from tap_baidu.client import BaiduReportStream, BaiduStream
 from tap_baidu.pagination import BaiduReportPaginator
 
 SCHEMAS_DIR = resources.files(__package__) / "schemas"
 
 
-class SummaryStream(BaiduStream):
+class SummaryStream(BaiduReportStream):
     """Class to get summary of reports."""
 
     name = "summary"
@@ -92,7 +92,7 @@ class CampaignDetails(BaiduStream):
         return params
 
 
-class ReportInCampaignDimension(BaiduStream):
+class ReportInCampaignDimension(BaiduReportStream):
     """Class to get report in campaign dimension."""
 
     name = "daily_report_in_campaign_dimension"
@@ -117,9 +117,10 @@ class ReportInCampaignDimension(BaiduStream):
         return params
 
 
-class ReportInSiteDimension(BaiduStream):
+class ReportInSiteDimension(BaiduReportStream):
     """Class to get report in site dimension."""
 
+    parent_stream_type = CampaignStream
     name = "daily_report_in_site_dimension"
     path = "/site/day/list"
     primary_keys = ("site_id", "date")
@@ -128,13 +129,20 @@ class ReportInSiteDimension(BaiduStream):
     records_jsonpath = "$.result[*]"
 
     @override
+    def get_records(self, context: dict):
+        campaign_ids = context.get("campaign_ids")
+        if campaign_ids:
+            for campaign_id in campaign_ids:
+                yield from super().get_records({"campaign_id": campaign_id})
+
+    @override
     def get_new_paginator(self):
-        return BaiduReportPaginator(1, stream=self)
+        return BaiduReportPaginator(1, stream=self, key="result")
 
     @override
     def get_url_params(self, context, next_page_token):
         params = super().get_url_params(context, next_page_token)
-        params["campaign_id"] = self.config["campaign_id"]
+        params["campaign_id"] = context["campaign_id"]
         params["page_size"] = 500
         params["current_page"] = next_page_token
         return params
