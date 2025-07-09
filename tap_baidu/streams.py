@@ -65,7 +65,7 @@ class AccountsStream(BaiduStream):
 
     name = "authorized_accounts"
     path = "/manage/v1/account"
-    primary_keys = "account_id"
+    primary_keys = ("account_id",)
     schema_filepath = SCHEMAS_DIR / "authorized_account_list.json"
 
     @override
@@ -122,7 +122,7 @@ class ReportInSiteDimension(BaiduStream):
 
     name = "daily_report_in_site_dimension"
     path = "/site/day/list"
-    primary_keys = ("campaign_id", "date")
+    primary_keys = ("site_id", "date")
     replication_key = "date"
     schema_filepath = SCHEMAS_DIR / "report_in_site_dimension.json"
     records_jsonpath = "$.result[*]"

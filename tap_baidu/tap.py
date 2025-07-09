@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 
 from singer_sdk import Tap
 from singer_sdk import typing as th  # JSON schema typing helpers
@@ -35,9 +35,7 @@ class TapBaidu(Tap):
         th.Property(
             "start_date",
             th.DateType,
-            default=(
-                datetime.now(tz=timezone.utc).date() - timedelta(days=365)
-            ).isoformat(),
+            default="2023-01-01",
             description=(
                 "Start date required for the report streams - summary and "
                 "report in campaign dimension."
