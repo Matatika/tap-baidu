@@ -29,9 +29,6 @@ plugins:
       label: End Date
     - name: timezone
       label: Timezone
-    - name: campaign_id
-      label: Campaign ID
-      description: The ID of the campaign to fetch reports for
   loaders:
   - name: target-jsonl
     variant: andyh1203
