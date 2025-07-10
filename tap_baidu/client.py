@@ -13,6 +13,8 @@ from tap_baidu.auth import BaiduAuthenticator
 class BaiduStream(RESTStream):
     """Baidu stream class."""
 
+    _use_bulk_context = True
+
     @override
     @cached_property
     def authenticator(self):
@@ -43,7 +45,7 @@ class BaiduReportStream(BaiduStream):
         # add your start_date, end_date, timezone here
         params.update(
             {
-                "start_date": start_value or self.config.get("start_date"),
+                "start_date": start_value or self.config["start_date"],
                 "end_date": self.config["end_date"],
                 "timezone": self.config["timezone"],
             }

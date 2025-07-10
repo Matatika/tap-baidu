@@ -59,6 +59,23 @@ class CampaignStream(BaiduStream):
             if buf.flush:
                 yield {"campaign_ids": buf}
 
+    def _sync_children(self, child_context) -> None:
+        if child_context is None:
+            self.logger.warning(
+                "Context for child streams of '%s' is null, "
+                "skipping sync of any child streams",
+                self.name,
+            )
+            return
+
+        for child_stream in self.child_streams:
+            if child_stream.selected or child_stream.has_selected_descendents:
+                if child_stream._use_bulk_context:  # noqa: SLF001
+                    child_stream.sync(context=child_context)
+                else:
+                    for campaign_id in child_context["campaign_ids"]:
+                        child_stream.sync(context={"campaign_id": campaign_id})
+
 
 class AccountsStream(BaiduStream):
     """Class to get list of authorized accounts."""
@@ -127,13 +144,7 @@ class ReportInSiteDimension(BaiduReportStream):
     replication_key = "date"
     schema_filepath = SCHEMAS_DIR / "report_in_site_dimension.json"
     records_jsonpath = "$.result[*]"
-
-    @override
-    def get_records(self, context: dict):
-        campaign_ids = context.get("campaign_ids")
-        if campaign_ids:
-            for campaign_id in campaign_ids:
-                yield from super().get_records({"campaign_id": campaign_id})
+    _use_bulk_context = False
 
     @override
     def get_new_paginator(self):
@@ -143,6 +154,6 @@ class ReportInSiteDimension(BaiduReportStream):
     def get_url_params(self, context, next_page_token):
         params = super().get_url_params(context, next_page_token)
         params["campaign_id"] = context["campaign_id"]
-        params["page_size"] = 500
+        params["page_size"] = 1000
         params["current_page"] = next_page_token
         return params
