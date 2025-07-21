@@ -1,0 +1,82 @@
+{
+    "type": "object",
+    "properties": {
+        "date": {
+            "type": "string",
+            "format": "date"
+        },
+        "cv_add_to_wishlist": {
+            "type": "integer"
+        },
+        "cv_start_checkout": {
+            "type": "integer"
+        },
+        "cv_add_paymentInfo": {
+            "type": "integer"
+        },
+        "title": {
+            "type": "string"
+        },
+        "campaign_name": {
+            "type": "string"
+        },
+        "cv_purchase": {
+            "type": "integer"
+        },
+        "cpc": {
+            "type": "number"
+        },
+        "spend": {
+            "type": "number"
+        },
+        "campaign_id": {
+            "type": "string"
+        },
+        "conversion": {
+            "type": "integer"
+        },
+        "cv_view_content": {
+            "type": "integer"
+        },
+        "cv_search": {
+            "type": "integer"
+        },
+        "cv_add_to_cart": {
+            "type": "integer"
+        },
+        "cv_other": {
+            "type": "integer"
+        },
+        "ad_name": {
+            "type": "string"
+        },
+        "brand_name": {
+            "type": "string"
+        },
+        "click": {
+            "type": "integer"
+        },
+        "ad_id": {
+            "type": "integer"
+        },
+        "img_url": {
+            "type": "string",
+            "format": "uri"
+        },
+        "impression": {
+            "type": "integer"
+        },
+        "cv_lead": {
+            "type": "integer"
+        },
+        "cv_app_install": {
+            "type": "integer"
+        },
+        "cv_complete_registration": {
+            "type": "integer"
+        },
+        "status": {
+            "type": "integer"
+        }
+    }
+}

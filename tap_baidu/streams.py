@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import datetime
 from importlib import resources
 
 from typing_extensions import override
@@ -157,3 +158,62 @@ class ReportInSiteDimension(BaiduReportStream):
         params["page_size"] = 1000
         params["current_page"] = next_page_token
         return params
+
+
+class ReportInAdDimension(BaiduReportStream):
+    """Class to get report in ad dimension."""
+
+    parent_stream_type = CampaignStream
+    name = "daily_report_in_ad_dimension"
+    path = "/ad/day/list"
+    primary_keys = ("ad_id", "date")
+    replication_key = "date"
+    schema_filepath = SCHEMAS_DIR / "report_in_ad_dimension.json"
+    records_jsonpath = "$.results[*]"
+
+    @override
+    def get_new_paginator(self):
+        return BaiduReportPaginator(1, stream=self, key="results")
+
+    @override
+    def get_url_params(self, context, next_page_token):
+        params = super().get_url_params(context, next_page_token)
+        params["campaign_ids"] = ",".join(context["campaign_ids"])
+        params["page_size"] = 500
+        params["current_page"] = next_page_token
+        params["start_date"] = self.current_start.isoformat()
+        params["end_date"] = self.current_end.isoformat()
+        return params
+
+    def request_records(self, context):
+        """Request records within the specified date range."""
+        # Parse start_date and end_date from config or bookmark, once
+        start_date = datetime.date.fromisoformat(
+            self.get_starting_replication_key_value(context)
+        )
+        end_date = datetime.date.fromisoformat(self.config["end_date"])
+
+        current_start = start_date
+
+        while current_start <= end_date:
+            current_end = min(current_start + datetime.timedelta(days=29), end_date)
+
+            # Store current range as instance attributes
+            self.current_start = current_start
+            self.current_end = current_end
+
+            self.logger.info(
+                f"Requesting records from {self.current_start} to {self.current_end} "  # noqa: G004
+                f"| context={context}"
+            )
+
+            records = list(super().request_records(context))
+
+            if not records:
+                self._increment_stream_state(
+                    {"date": self.current_end.isoformat()}, context=context
+                )
+
+            yield from records
+
+            current_start = current_end + datetime.timedelta(days=1)
