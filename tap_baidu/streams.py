@@ -163,6 +163,7 @@ class ReportInSiteDimension(BaiduReportStream):
 class ReportInAdDimension(BaiduReportStream):
     """Class to get report in ad dimension."""
 
+    parent_stream_type = CampaignStream
     name = "daily_report_in_ad_dimension"
     path = "/ad/day/list"
     primary_keys = ("ad_id", "date")
@@ -170,6 +171,7 @@ class ReportInAdDimension(BaiduReportStream):
     schema_filepath = SCHEMAS_DIR / "report_in_ad_dimension.json"
     records_jsonpath = "$.results[*]"
     is_sorted = True
+    _use_bulk_context = False
 
     @override
     def get_new_paginator(self):
@@ -179,6 +181,7 @@ class ReportInAdDimension(BaiduReportStream):
     def get_url_params(self, context, next_page_token):
         params = super().get_url_params(context, next_page_token)
         params["page_size"] = 500
+        params["campaign_ids"] = context["campaign_id"]
         params["current_page"] = next_page_token
         params["start_date"] = self.current_start.isoformat()
         params["end_date"] = self.current_end.isoformat()
@@ -195,7 +198,11 @@ class ReportInAdDimension(BaiduReportStream):
         end_date = datetime.date.fromisoformat(self.config["end_date"])
 
         current_start = start_date
-
+        self.logger.info(
+            "current_start_date:%s and current_end_date:%s",
+            current_start,
+            end_date,
+        )
         while current_start <= end_date:
             current_end = min(current_start + datetime.timedelta(days=29), end_date)
 
