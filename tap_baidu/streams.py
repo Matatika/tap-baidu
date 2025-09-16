@@ -163,7 +163,7 @@ class ReportInSiteDimension(BaiduReportStream):
 class ReportInAdDimension(BaiduReportStream):
     """Class to get report in ad dimension."""
 
-    name = "daily_report_in_ad_dimension"
+    name = "daily_report_in_ad_dimension_2"
     path = "/ad/day/list"
     primary_keys = ("ad_id", "date")
     replication_key = "date"
