@@ -163,7 +163,6 @@ class ReportInSiteDimension(BaiduReportStream):
 class ReportInAdDimension(BaiduReportStream):
     """Class to get report in ad dimension."""
 
-    parent_stream_type = CampaignStream
     name = "daily_report_in_ad_dimension"
     path = "/ad/day/list"
     primary_keys = ("ad_id", "date")
@@ -181,7 +180,6 @@ class ReportInAdDimension(BaiduReportStream):
     def get_url_params(self, context, next_page_token):
         params = super().get_url_params(context, next_page_token)
         params["page_size"] = 500
-        params["campaign_ids"] = context["campaign_id"]
         params["current_page"] = next_page_token
         params["start_date"] = self.current_start.isoformat()
         params["end_date"] = self.current_end.isoformat()
