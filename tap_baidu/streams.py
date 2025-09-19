@@ -164,7 +164,7 @@ class ReportInAdDimension(BaiduReportStream):
     """Class to get report in ad dimension."""
 
     parent_stream_type = CampaignStream
-    name = "daily_report_in_ad_dimension_2"
+    name = "daily_report_in_ad_dimension"
     path = "/ad/day/list"
     primary_keys = ("ad_id", "date")
     replication_key = "date"
