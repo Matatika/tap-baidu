@@ -159,6 +159,43 @@ class ReportInSiteDimension(BaiduReportStream):
         params["current_page"] = next_page_token
         return params
 
+    def request_records(self, context):
+        """Request records within the specified date range."""
+        # Parse start_date and end_date from config or bookmark, once
+        start_date = datetime.date.fromisoformat(
+            self.get_starting_replication_key_value(context)
+        )
+        end_date = datetime.date.fromisoformat(self.config["end_date"])
+
+        current_start = start_date
+        self.logger.info(
+            "current_start_date:%s and current_end_date:%s",
+            current_start,
+            end_date,
+        )
+        while current_start <= end_date:
+            current_end = min(current_start + datetime.timedelta(days=10), end_date)
+
+            # Store current range as instance attributes
+            self.current_start = current_start
+            self.current_end = current_end
+
+            self.logger.info(
+                f"Requesting records from {self.current_start} to {self.current_end} "  # noqa: G004
+                f"| context={context}"
+            )
+
+            records = list(super().request_records(context))
+
+            if not records:
+                self._increment_stream_state(
+                    {"date": self.current_end.isoformat()}, context=context
+                )
+
+            yield from records
+
+            current_start = current_end + datetime.timedelta(days=1)
+
 
 class ReportInAdDimension(BaiduReportStream):
     """Class to get report in ad dimension."""
