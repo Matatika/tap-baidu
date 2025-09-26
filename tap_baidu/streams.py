@@ -3,13 +3,18 @@
 from __future__ import annotations
 
 import datetime
+import typing as t
 from importlib import resources
 
+from singer_sdk.exceptions import FatalAPIError
 from typing_extensions import override
 
 from tap_baidu import BufferDeque
 from tap_baidu.client import BaiduReportStream, BaiduStream
 from tap_baidu.pagination import BaiduReportPaginator
+
+if t.TYPE_CHECKING:
+    import requests
 
 SCHEMAS_DIR = resources.files(__package__) / "schemas"
 
@@ -157,6 +162,8 @@ class ReportInSiteDimension(BaiduReportStream):
         params["campaign_id"] = context["campaign_id"]
         params["page_size"] = 1000
         params["current_page"] = next_page_token
+        params["start_date"] = self.current_start.isoformat()
+        params["end_date"] = self.current_end.isoformat()
         return params
 
     def request_records(self, context):
@@ -174,7 +181,7 @@ class ReportInSiteDimension(BaiduReportStream):
             end_date,
         )
         while current_start <= end_date:
-            current_end = min(current_start + datetime.timedelta(days=10), end_date)
+            current_end = min(current_start + datetime.timedelta(days=3), end_date)
 
             # Store current range as instance attributes
             self.current_start = current_start
@@ -194,7 +201,30 @@ class ReportInSiteDimension(BaiduReportStream):
 
             yield from records
 
-            current_start = current_end + datetime.timedelta(days=1)
+            current_start = current_end + datetime.timedelta(days=7)
+
+    BAIDU_API_CODE_SITE_LIST_FAILED = 1006
+
+    def parse_response(self, response: requests.Response) -> t.Iterable[dict]:
+        """Parse Baidu API response into records."""
+        try:
+            payload = response.json()
+        except Exception as e:
+            msg = f"Invalid JSON response: {e}"
+            raise FatalAPIError(msg) from e
+
+        if (
+            isinstance(payload, dict)
+            and payload.get("coce") == self.BAIDU_API_CODE_SITE_LIST_FAILED
+        ):
+            msg = (
+                f"Baidu API returned code={self.BAIDU_API_CODE_SITE_LIST_FAILED} "
+                "(get site list failed)"
+            )
+            self.logger.error(msg)
+            raise FatalAPIError(msg)
+
+        return super().parse_response(response)
 
 
 class ReportInAdDimension(BaiduReportStream):
