@@ -201,7 +201,7 @@ class ReportInSiteDimension(BaiduReportStream):
 
             yield from records
 
-            current_start = current_end + datetime.timedelta(days=7)
+            current_start = current_end + datetime.timedelta(days=1)
 
     BAIDU_API_CODE_SITE_LIST_FAILED = 1006
 
