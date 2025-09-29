@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import datetime
-import typing as t
 from importlib import resources
 
 from singer_sdk.exceptions import FatalAPIError
@@ -12,9 +11,6 @@ from typing_extensions import override
 from tap_baidu import BufferDeque
 from tap_baidu.client import BaiduReportStream, BaiduStream
 from tap_baidu.pagination import BaiduReportPaginator
-
-if t.TYPE_CHECKING:
-    import requests
 
 SCHEMAS_DIR = resources.files(__package__) / "schemas"
 
@@ -192,39 +188,64 @@ class ReportInSiteDimension(BaiduReportStream):
                 f"| context={context}"
             )
 
-            records = list(super().request_records(context))
+            self.logger.info("Trying window %s -> %s", current_start, current_end)
 
-            if not records:
-                self._increment_stream_state(
-                    {"date": self.current_end.isoformat()}, context=context
-                )
+            yield from self._fetch_with_retries(context, current_start, current_end)
 
-            yield from records
-
+            # Advance state after successful fetch
+            self._increment_stream_state(
+                {"date": current_end.isoformat()}, context=context
+            )
             current_start = current_end + datetime.timedelta(days=1)
 
-    BAIDU_API_CODE_SITE_LIST_FAILED = 1006
+    def _fetch_with_retries(self, context, start_date, end_date):
+        """Fetch records, retrying with smaller chunks if Baidu rejects the range."""
+        chunk_start = start_date
+        chunk_end = end_date
 
-    def parse_response(self, response: requests.Response) -> t.Iterable[dict]:
-        """Parse Baidu API response into records."""
-        try:
-            payload = response.json()
-        except Exception as e:
-            msg = f"Invalid JSON response: {e}"
-            raise FatalAPIError(msg) from e
+        while True:
+            self.current_start = chunk_start
+            self.current_end = chunk_end
 
-        if (
-            isinstance(payload, dict)
-            and payload.get("coce") == self.BAIDU_API_CODE_SITE_LIST_FAILED
-        ):
-            msg = (
-                f"Baidu API returned code={self.BAIDU_API_CODE_SITE_LIST_FAILED} "
-                "(get site list failed)"
-            )
-            self.logger.error(msg)
-            raise FatalAPIError(msg)
+            try:
+                yield from super().request_records(context)
+                return  # noqa: TRY300
+            except FatalAPIError as e:
+                # Check if it's the site list failure
+                # this is not a spelling mistake, the response from baidu is
+                # spelled as coce.
+                if "coce=1006" not in str(e):
+                    raise  # re-raise other fatal errors
 
-        return super().parse_response(response)
+                if chunk_start == chunk_end:
+                    # Already at 1 day, cannot split further
+                    self.logger.exception(
+                        "Baidu API still failing for single day %s, giving up",
+                        chunk_start,
+                    )
+                    raise
+
+                # Split the range into smaller parts
+                mid = chunk_start + (chunk_end - chunk_start) // 2
+                self.logger.warning(
+                    "Baidu API rejected range %s -> %s, splitting into "
+                    "[%s -> %s] and [%s -> %s]",
+                    chunk_start,
+                    chunk_end,
+                    chunk_start,
+                    mid,
+                    mid + datetime.timedelta(days=1),
+                    chunk_end,
+                )
+
+                # Recursively fetch left and right halves
+                left_records = self._fetch_with_retries(context, chunk_start, mid)
+                right_records = self._fetch_with_retries(
+                    context,
+                    mid + datetime.timedelta(days=1),
+                    chunk_end,
+                )
+                return left_records + right_records
 
 
 class ReportInAdDimension(BaiduReportStream):
