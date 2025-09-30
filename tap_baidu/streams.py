@@ -142,7 +142,7 @@ class ReportInSiteDimension(BaiduReportStream):
     parent_stream_type = CampaignStream
     name = "daily_report_in_site_dimension"
     path = "/site/day/list"
-    primary_keys = ("site_id", "date")
+    primary_keys = ("campaign_id", "site_id", "date")
     replication_key = "date"
     schema_filepath = SCHEMAS_DIR / "report_in_site_dimension.json"
     records_jsonpath = "$.result[*]"
