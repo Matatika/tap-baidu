@@ -148,6 +148,11 @@ class ReportInSiteDimension(BaiduReportStream):
     records_jsonpath = "$.result[*]"
     _use_bulk_context = False
 
+    @property
+    def url_base(self) -> str:
+        """Return the site report endpoint base URL."""
+        return "https://api.mediago.io/manage/v1/report"
+
     @override
     def get_new_paginator(self):
         return BaiduReportPaginator(1, stream=self, key="result")
