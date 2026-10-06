@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import datetime
+from collections import defaultdict
 from importlib import resources
 
 from singer_sdk.exceptions import FatalAPIError
@@ -10,7 +11,7 @@ from typing_extensions import override
 
 from tap_baidu import BufferDeque
 from tap_baidu.client import BaiduReportStream, BaiduStream
-from tap_baidu.pagination import BaiduReportPaginator
+from tap_baidu.pagination import BaiduBlockListPaginator, BaiduReportPaginator
 
 SCHEMAS_DIR = resources.files(__package__) / "schemas"
 
@@ -105,10 +106,63 @@ class CampaignDetails(BaiduStream):
     state_partitioning_keys = ()
 
     @override
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self._blocked_sites_by_account: dict[str, dict[str, list[dict]]] = {}
+
+    @override
     def get_url_params(self, context, next_page_token):
         params = super().get_url_params(context, next_page_token)
         params["campaign_ids"] = ",".join(context["campaign_ids"])
         return params
+
+    @override
+    def post_process(self, row, context=None):
+        blocked_sites = self._get_blocked_sites(row["account_id"])
+        row["blocked_sites"] = blocked_sites.get(row["campaign_id"], [])
+        return row
+
+    def _get_blocked_sites(self, account_id: str) -> dict[str, list[dict]]:
+        """Get sites blocked at campaign or account level, keyed by campaign ID.
+
+        The block list is fetched once per account rather than per campaign, and is
+        attached to each campaign record so that unblocked sites drop out on the next
+        sync.
+        """
+        if account_id in self._blocked_sites_by_account:
+            return self._blocked_sites_by_account[account_id]
+
+        blocked_sites = defaultdict(list)
+        paginator = BaiduBlockListPaginator(1, page_size=1000)
+        decorated_request = self.request_decorator(self._request)
+
+        while not paginator.finished:
+            prepared_request = self.build_prepared_request(
+                method="GET",
+                url=f"{self.url_base}/manage/v1/campaign/domain/block/list",
+                params={
+                    "account_id": account_id,
+                    "page_size": paginator.page_size,
+                    "current_page": paginator.current_value,
+                },
+                headers=self.http_headers,
+            )
+            response = decorated_request(prepared_request, None)
+
+            for site in response.json()["data"]["detail"]:
+                blocked_sites[site["campaignId"]].append(
+                    {
+                        "site_id": site["siteId"],
+                        "domain_name": site["domainName"],
+                        "operation_time": site["operationTime"],
+                        "block_on_account": site["blockOnAccount"],
+                    }
+                )
+
+            paginator.advance(response)
+
+        self._blocked_sites_by_account[account_id] = blocked_sites
+        return blocked_sites
 
 
 class ReportInCampaignDimension(BaiduReportStream):
