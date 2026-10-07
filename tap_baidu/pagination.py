@@ -22,3 +22,18 @@ class BaiduReportPaginator(BasePageNumberPaginator):
     @override
     def has_more(self, response):
         return bool(response.json()[self.key])
+
+
+class BaiduBlockListPaginator(BasePageNumberPaginator):
+    """Baidu block list paginator."""
+
+    def __init__(self, start_value, page_size) -> None:
+        """Initialize the paginator with the page size used in the request."""
+        super().__init__(start_value=start_value)
+        self.page_size = page_size
+
+    @override
+    def has_more(self, response):
+        data = response.json()["data"]
+        fetched = self.current_value * self.page_size
+        return bool(data["detail"]) and fetched < data["total"]

@@ -195,6 +195,25 @@
                     }
                 }
             }
+        },
+        "blocked_sites": {
+            "type": "array",
+            "items": {
+                "properties": {
+                    "site_id": {
+                        "type": "string"
+                    },
+                    "domain_name": {
+                        "type": "string"
+                    },
+                    "operation_time": {
+                        "type": "string"
+                    },
+                    "block_on_account": {
+                        "type": "boolean"
+                    }
+                }
+            }
         }
     }
 }
